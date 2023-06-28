@@ -6,7 +6,9 @@
     "outDir": "./dist",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "sourceMap": false, //set true for debugging ts.
     "strict": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "typeRoots": ["config.ts", "./node_modules/@types"]
   }
 }
