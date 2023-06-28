@@ -40,8 +40,9 @@ const Command = ({
   const textareaRef = useRef(null);
   const [command, setCommand] = useState("");
   const { messages, setMessages }: any = useContext(ChatContext);
-  const chatHistory: Chats[] = [];
+  const [chatHistory, setChatHistory] = useState<Chats[]>([]);
 
+  // * Resize Textarea with input.
   const handleSizeChange = (e: any) => {
     const textarea: any = textareaRef.current;
     setCommand(e.target.value);
@@ -49,34 +50,42 @@ const Command = ({
     textarea.style.height = `${textarea.scrollHeight}px`;
   };
 
-  const addMesages = async (message: string) => {
-    // * resize textarea for large inputs
+  // ? Concatenates messages to array. requests response from api and displays results.
+  const addMessages = async (message: string) => {
+    message = message.trim();
     if (message.length < 1) return;
     const textarea: any = textareaRef.current;
     textarea.style.height = "auto";
 
-    // * add new command to chat arr and clear input
-    chatHistory.push({ role: "user", content: message });
+    // * Adds chat history to messages array and <Chat array.
+    const updatedChatHistory: Chats[] = [
+      ...chatHistory,
+      { role: "user", content: message },
+    ];
+    setChatHistory(updatedChatHistory);
     setCommand("");
-    setMessages((messages: any) => [
-      ...messages,
+    setMessages((prevMessages: JSX.Element[]) => [
+      ...prevMessages,
       <Chat key={message} isAi={false} message={message} />,
     ]);
 
-    const botMessage = await getBotMessage(chatHistory);
+    const botMessage = await getBotMessage(updatedChatHistory);
 
-    // * add chatgpt response to arr and scroll to bottom of view
-    setMessages((messages: JSX.Element[]) => [
-      ...messages,
+    setChatHistory((prevChatHistory: Chats[]) => [
+      ...prevChatHistory,
+      { role: "assistant", content: botMessage },
+    ]);
+
+    setMessages((prevMessages: JSX.Element[]) => [
+      ...prevMessages,
       <Chat key={botMessage} isAi={true} message={botMessage} />,
     ]);
-    document
-      .getElementById("chatbot")
-      ?.scrollIntoView({ behavior: "smooth", block: "end" });
-    console.log(messages);
-    chatHistory.push({ role: "assistant", content: botMessage });
+
+    const chatbotDiv = document.getElementById("chatbot");
+    chatbotDiv?.scrollIntoView({ behavior: "smooth", block: "end" });
   };
 
+  // ? Fetches response from API.
   const getBotMessage = async (prompt: Chats[]): Promise<string> => {
     loading(true);
     let response = await axios.post(
@@ -104,7 +113,7 @@ const Command = ({
             onChange={(e) => handleSizeChange(e)}
             className="my-5 h-10 max-h-32 w-4/5 resize-none rounded-xl bg-tron-green p-2 text-tron-gold shadow-xl"
           />
-          <div className="cursor-pointer" onClick={() => addMesages(command)}>
+          <div className="cursor-pointer" onClick={() => addMessages(command)}>
             <svg // Send Button
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
@@ -133,7 +142,7 @@ function App() {
   return (
     <>
       <ChatContext.Provider value={{ messages, setMessages }}>
-        <div id="chatbot" className="max-h-[80vh] overflow-auto">
+        <div id="chatbot" className="max-h-[89vh] overflow-auto">
           <div>Logo</div>
           <div className="flex justify-center">
             <img
