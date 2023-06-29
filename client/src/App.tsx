@@ -1,14 +1,26 @@
-import { useRef, useState, useContext, createContext } from "react";
+import { useRef, useState, useContext, createContext, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
+import Typed from "typed.js";
 import Bae from "./assets/Bae🖤.jpg";
-import { Chats } from "./utils/types";
+import { ChatProps, Chats } from "./utils/types";
 
 const ChatContext: any = createContext(null);
 
-// TODO: Figure out how to do this properly.
+/*
+TODO Figure out scrolling to bottom of #chatbot. 
+TODO Implement ElevenLabs Voice API. Mess around with speed of typer.
+TODO Add more context to Edbot prompt. MidJourney generate AI Ed.
+TODO Typing Cursor kind of clipping box. (Maybe make text smaller). File separate components.
+TODO Add sound to sending message? Disable input and send button while bot is typing.
+TODO Style better, Build better UI. Tell bot to ask for name, better opening script.
+TODO Scroll over message show sent time? Like iPhone. Clean up server folder.
+TODO Add notifications to top of screen, show up when keyword is in bot message?
+  ? Ex: Scotty -> Ari send a text saying I miss you...
+? https://github.com/leonvanzyl/Elevenlabs-TTS-API ElevenLabs implementation.
+*/
 
-const Chat = ({ isAi, message }: { isAi: boolean; message: string }) => {
+const Chat = ({ isAi, message }: ChatProps) => {
   return (
     <>
       <div
@@ -30,6 +42,13 @@ const BotText = () => {
       <div className="loading inline-block">•••</div>
     </div>
   );
+};
+
+const generateUniqueId = (): string => {
+  const timestamp = Date.now();
+  const randomNumber = Math.random();
+  const hexadecimalString = randomNumber.toString(16);
+  return `id-${timestamp}-${hexadecimalString}`;
 };
 
 const Command = ({
@@ -54,6 +73,9 @@ const Command = ({
   const addMessages = async (message: string) => {
     message = message.trim();
     if (message.length < 1) return;
+    const userId: string = generateUniqueId();
+    const botId: string = generateUniqueId();
+
     const textarea: any = textareaRef.current;
     textarea.style.height = "auto";
 
@@ -66,10 +88,12 @@ const Command = ({
     setCommand("");
     setMessages((prevMessages: JSX.Element[]) => [
       ...prevMessages,
-      <Chat key={message} isAi={false} message={message} />,
+      <Chat key={userId} isAi={false} message={message} />,
     ]);
 
     const botMessage = await getBotMessage(updatedChatHistory);
+    console.log({ messages });
+    console.log(messages[0].props.message);
 
     setChatHistory((prevChatHistory: Chats[]) => [
       ...prevChatHistory,
@@ -78,11 +102,11 @@ const Command = ({
 
     setMessages((prevMessages: JSX.Element[]) => [
       ...prevMessages,
-      <Chat key={botMessage} isAi={true} message={botMessage} />,
+      <Chat key={botId} isAi={true} message={botMessage} />,
     ]);
 
     const chatbotDiv = document.getElementById("chatbot");
-    chatbotDiv?.scrollIntoView({ behavior: "smooth", block: "end" });
+    if (chatbotDiv) chatbotDiv.scrollTop = chatbotDiv?.scrollHeight;
   };
 
   // ? Fetches response from API.
@@ -130,6 +154,7 @@ const Command = ({
 };
 
 function App() {
+  let botMessage = "";
   const [messages, setMessages] = useState([
     <Chat
       key={"bot"}
@@ -138,6 +163,22 @@ function App() {
     />,
   ]);
   const [loading, setLoading] = useState(false);
+  const bot = useRef(null);
+
+  useEffect(() => {
+    let cursor: boolean = true;
+    const typed = new Typed(bot.current, {
+      strings: [botMessage],
+      typeSpeed: 20,
+      showCursor: cursor,
+      onComplete() {
+        cursor = false;
+      },
+    });
+    return () => {
+      typed.destroy();
+    };
+  }, [messages]);
 
   return (
     <>
@@ -151,9 +192,25 @@ function App() {
               alt="Bot icon"
             />
           </div>
-          {messages.map((message) => message)}
+          {messages.map((message, index) => {
+            const msg: ChatProps = messages[index].props;
+
+            if (index === messages.length - 1 && msg.isAi && !loading) {
+              botMessage = msg.message;
+              return;
+            } else return message;
+          })}
+          {loading && <BotText />}
+          <div
+            className={`${
+              loading
+                ? "hidden"
+                : "w-60 rounded-xl bg-tron-green p-2 font-bold text-tron-gold md:w-[350px]"
+            }`}
+          >
+            <span ref={bot} />
+          </div>
         </div>
-        {loading && <BotText />}
         <Command loading={setLoading} />
       </ChatContext.Provider>
     </>
