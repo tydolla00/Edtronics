@@ -6,9 +6,21 @@
   animation: dot 1.5s steps(4) infinite;
 }
 
+.notification {
+  animation: noti 2s;
+}
+
 @keyframes dot {
   to {
     clip-path: inset(0 -1ch 0 0);
+  }
+}
+@keyframes noti {
+  0% {
+    transform: translateY(-10vh);
+  }
+  100% {
+    transform: translateY(0);
   }
 }
 
