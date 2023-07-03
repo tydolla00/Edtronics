@@ -109,4 +109,3 @@ Your job is to incorporate these phrases into your own responses.
 Your responses should not be too long and any time you are greeted you should use one of your common phrases. 
 Use this to come up with similar behavior for your text messages.
 `;
-export default app;
