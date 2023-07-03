@@ -10,14 +10,14 @@ dotenv.config();
 // as someone could skip these varibales or not setup a .env file at alle
 
 interface ENV {
-  NODE_ENV: string | undefined;
+  ELVN_API_KEY: string | undefined;
   PORT: number | undefined;
   MONGO_URI: string | undefined;
   API_KEY: string | undefined;
 }
 
 interface Config {
-  NODE_ENV: string;
+  ELVN_API_KEY: string;
   PORT: number;
   MONGO_URI: string;
   API_KEY: string;
@@ -27,7 +27,7 @@ interface Config {
 
 const getConfig = (): ENV => {
   return {
-    NODE_ENV: process.env.NODE_ENV,
+    ELVN_API_KEY: process.env.ELVN_API_KEY,
     PORT: process.env.PORT ? Number(process.env.PORT) : undefined,
     MONGO_URI: process.env.MONGO_URI,
     API_KEY: process.env.API_KEY,

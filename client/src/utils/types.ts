@@ -7,6 +7,13 @@ export type ChatProps = {
   message: string;
 };
 
+export type CommandProps = {
+  loading: boolean;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  isTyping: boolean;
+  setAudio: React.Dispatch<any>;
+};
+
 export type Notifications = {
   [key: string]: {
     name: string;

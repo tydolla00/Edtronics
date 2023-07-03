@@ -1,23 +1,31 @@
 import { useRef, useState, createContext, useEffect } from "react";
-import "./App.css";
 import Typed from "typed.js";
 import Bae from "./assets/Bae🖤.jpg";
 import { ChatProps } from "./utils/types";
 import Notification from "./components/notifications";
 import Command, { Chat } from "./components/chatbox";
+import ReactAudioPlayer from "react-audio-player";
+import "../src/styles/App.css";
+//@ts-ignore
+import useSound from "use-sound";
 
 export const ChatContext: any = createContext(null);
 
 /*
-TODO Implement ElevenLabs Voice API. Mess around with speed of typer.
-TODO Add more context to Edbot prompt. MidJourney generate AI Ed.
-TODO Add sound to sending message? Disable input and send button while bot is typing.
-TODO Style better, Build better UI. Tell bot to ask for name, better opening script.
-TODO Scroll over message show sent time? Like iPhone. Clean up server folder.
-TODO Add notifications to top of screen, show up when keyword is in bot message?
-  ? Ex: Scotty -> Ari send a text saying I miss you...
-? https://github.com/leonvanzyl/Elevenlabs-TTS-API ElevenLabs implementation.
+TODO Ensure Responsiveness
+TODO Play audio only when it is fully loaded.
+TODO MidJourney generate AI Ed. Add sound to sending message? Limit tokens ChatGPT. Whisper API
+TODO Style better, Build better UI. Clean up server folder.
 */
+
+// * Play Audio when fully loaded. #Not working.
+const handleAudioLoaded = () => {
+  console.log("Got here for the x'th time");
+  const audioElement = document.getElementById(
+    "audioplayer"
+  ) as HTMLAudioElement;
+  if (audioElement) audioElement.play();
+};
 
 function App() {
   let botMessage = "";
@@ -25,10 +33,13 @@ function App() {
     <Chat
       key={"bot"}
       isAi={true}
-      message="What's goooood a boss! Ask me anything and I'll give you a woah nice answer."
+      message="What's goooood a boss! Ask me anything and I'll give you a woah nice answer. What's your name?"
     />,
   ]);
   const [loading, setLoading] = useState(false);
+  const [isTyping, setisTyping] = useState(false);
+  const [audio, setAudio] = useState<any>(null); // File name
+
   const bot = useRef(null);
 
   useEffect(() => {
@@ -37,9 +48,8 @@ function App() {
       strings: [botMessage],
       typeSpeed: 20,
       showCursor: true,
-      onStart() {
-        while (true)
-          if (chatbotDiv) chatbotDiv.scrollTop = chatbotDiv.scrollHeight;
+      onDestroy() {
+        setisTyping(false);
       },
       onComplete() {
         if (chatbotDiv) chatbotDiv.scrollTop = chatbotDiv.scrollHeight;
@@ -53,7 +63,7 @@ function App() {
   return (
     <>
       <ChatContext.Provider value={{ messages, setMessages }}>
-        <div id="chatbot" className="max-h-[85vh] overflow-auto">
+        <div id="chatbot" className="max-h-[83vh] overflow-auto">
           <div>Logo</div>
           <div className="flex justify-center">
             <img
@@ -70,6 +80,18 @@ function App() {
               return;
             } else return message;
           })}
+
+          {!loading && audio && (
+            <ReactAudioPlayer
+              id="audioplayer"
+              src={`http://localhost:8000/audio/${audio}`}
+              onCanPlayThrough={handleAudioLoaded}
+              // onLoadedMetadata={handleAudioLoaded}
+              preload="auto"
+              controls
+            />
+          )}
+
           {loading && (
             <div className="w-16 rounded-full bg-gray-600 text-3xl text-white">
               <div className="loading inline-block">•••</div>
@@ -79,14 +101,19 @@ function App() {
             className={`${
               loading
                 ? "hidden"
-                : "w-60 rounded-xl bg-tron-green p-2 font-bold text-tron-gold md:w-[350px]"
+                : "mb-2 w-60 rounded-xl bg-tron-green p-2 font-bold text-tron-gold md:w-[350px]"
             }`}
           >
             <span ref={bot} />
           </div>
         </div>
         <Notification message={botMessage} />
-        <Command loading={setLoading} />
+        <Command
+          isTyping={isTyping}
+          loading={loading}
+          setLoading={setLoading}
+          setAudio={setAudio}
+        />
       </ChatContext.Provider>
     </>
   );
