@@ -2,7 +2,13 @@ import express, { Express, Request, Response } from "express";
 import * as dotenv from "dotenv";
 import cors from "cors";
 import config from "./config";
+import fs from "fs";
+import cron from "node-cron";
+import axios from "axios";
+import path from "path";
 import { Configuration, OpenAIApi } from "openai";
+
+const { AUDIO_DIRECTORY, deleteOldAudioFiles } = require("./cleanup");
 
 dotenv.config();
 
@@ -18,11 +24,13 @@ const openai = new OpenAIApi(configuration);
 const app: Express = express();
 app.use(cors());
 app.use(express.json());
+app.use("./audio", express.static(path.join(__dirname, "audio")));
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello Worldd");
 });
 
+// ? Calls ChatGPT API with instructions and appeneds new prompt. Then returns bot's response.
 app.post("/botmessage", async (req, res) => {
   try {
     const prompt = req.body.prompt;
@@ -38,9 +46,66 @@ app.post("/botmessage", async (req, res) => {
   }
 });
 
+// ? Calls ElevenLabs API, passing in message and requested voice. Creates file, stores it in dist and
+// ? returns file name to be used to access resource.
+app.post("/labs", async (req, res) => {
+  try {
+    const message = req.body.message;
+    const voice = req.body.voice;
+    const response = await axios.post(
+      `https://api.elevenlabs.io/v1/text-to-speech/${voice}`,
+      { text: message },
+      {
+        headers: {
+          accept: "audio/mpeg",
+          "Content-Type": "application/json",
+          "xi-api-key": config.ELVN_API_KEY,
+        },
+        responseType: "stream",
+      }
+    );
+    if (response.status !== 200)
+      throw new Error("Oops, something unexpected happened.");
+
+    const file = Math.random().toString(36).substring(7);
+    const filePath = path.join(__dirname, "audio", `${file}.mp3`);
+
+    response.data.pipe(fs.createWriteStream(filePath));
+
+    res.send(JSON.stringify({ file: `${file}.mp3` }));
+  } catch (error) {
+    res.send(error);
+    console.log(error);
+  }
+});
+
+// ? Endpoint to serve the audio file when the client requests it
+app.get("/audio/:fileName", (req, res) => {
+  const fileName = req.params.fileName;
+  const filePath = path.join(__dirname, "audio", fileName); // Path to the "audio" folder
+  res.sendFile(filePath);
+});
+
+// Schedule the cleanup task once per day
+// cron.schedule("0 0 * * *", async () => {
+cron.schedule("*/10 * * * *", async () => {
+  const maxAgeInMinutes = 30; // Maximum age for audio files (adjust as needed)
+
+  // Trigger the asynchronous to delete old files.
+  await deleteOldAudioFiles(AUDIO_DIRECTORY, maxAgeInMinutes);
+});
+
 app.listen(port, () => {
   console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
 });
 
-const instructions =
-  "Your name is Edbot and you speak english only. You are a chatbot designed for a text messenger. Edbot acts like a bot, he uses common phrases often in his texts. The common phrases are uhyuhhhh, Euaaaa, so nice boss, My bro, my bro, any units, Scotty too hotty, reet, and much more. Your job is to incorporate these phrases into your own responses. Your responses should not be too long and any time you are greeted you should say something like what's up my bro? Use this to come up with similar behavior for your text messages";
+const instructions = `
+Your name is Edbot and you speak english only. You are a chatbot designed for a text messenger. 
+Edbot acts like a bot, he uses common phrases often in his texts. The common phrases are uhyuhhhh, 
+Euaaaa, so nice boss, smokey burgers, "here, here, here", My bro, any units, Scotty too hotty, reet, a bossss, woah nice, reet and much more.
+If I tell you my name is Edmund, call me a bot, and ask how my business Edtronics is doing.
+Your favorite song is Too hotty by Quality Control and the Migos and sometimes you like to sing the hook that says scotty too hottyy. 
+Your job is to incorporate these phrases into your own responses. 
+Your responses should not be too long and any time you are greeted you should use one of your common phrases. 
+Use this to come up with similar behavior for your text messages.
+`;
