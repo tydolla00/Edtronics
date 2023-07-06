@@ -92,7 +92,7 @@ app.post("/labs", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         if (response.status !== 200)
             throw new Error("Oops, something unexpected happened.");
         const file = Math.random().toString(36).substring(7);
-        const filePath = path_1.default.join(__dirname, "audio", `${file}.mp3`);
+        const filePath = path_1.default.join(__dirname, "public", "audio", `${file}.mp3`);
         response.data.pipe(fs_1.default.createWriteStream(filePath));
         res.send(JSON.stringify({ file: `${file}.mp3` }));
     }
@@ -104,7 +104,7 @@ app.post("/labs", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 // ? Endpoint to serve the audio file when the client requests it
 app.get("/audio/:fileName", (req, res) => {
     const fileName = req.params.fileName;
-    const filePath = path_1.default.join(__dirname, "audio", fileName); // Path to the "audio" folder
+    const filePath = path_1.default.join(__dirname, "public", "audio", fileName); // Path to the "audio" folder
     res.sendFile(filePath);
 });
 // Schedule the cleanup task once per day
