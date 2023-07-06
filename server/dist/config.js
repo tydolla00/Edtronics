@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv_1 = __importDefault(require("dotenv"));
-require("./config/test.js");
 // Parsing the env file.
 dotenv_1.default.config();
 // Loading process.env as ENV interface
