@@ -1,10 +1,13 @@
 import fs from "fs";
 import path from "path";
 
-const AUDIO_DIRECTORY = path.join(__dirname, "./audio");
+export const AUDIO_DIRECTORY = path.join(__dirname, "./audio");
 
 // * Deletes mp3 files older than 30 min (maxAgeInMinutes) in /dist/audio
-const deleteOldAudioFiles = async (directory: any, maxAgeInMinutes: any) => {
+export const deleteOldAudioFiles = async (
+  directory: any,
+  maxAgeInMinutes: any
+) => {
   const currentTime = Date.now();
   const maxAgeInMillis = maxAgeInMinutes * 60 * 1000;
 

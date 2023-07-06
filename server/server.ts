@@ -7,8 +7,7 @@ import cron from "node-cron";
 import axios from "axios";
 import path from "path";
 import { Configuration, OpenAIApi } from "openai";
-
-const { AUDIO_DIRECTORY, deleteOldAudioFiles } = require("./cleanup");
+import { AUDIO_DIRECTORY, deleteOldAudioFiles } from "./cleanup";
 
 dotenv.config();
 
