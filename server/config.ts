@@ -1,6 +1,4 @@
-import path from "path";
 import dotenv from "dotenv";
-import "./config/test.js";
 
 // Parsing the env file.
 dotenv.config();
