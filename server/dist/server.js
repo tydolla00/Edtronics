@@ -55,7 +55,7 @@ const openai = new openai_1.OpenAIApi(configuration);
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
-app.use("./audio", express_1.default.static(path_1.default.join(__dirname, "audio")));
+app.use(process.cwd(), express_1.default.static(path_1.default.join(__dirname, "public/audio")));
 app.get("/", (req, res) => {
     res.send("Hello Worldd");
 });
@@ -92,7 +92,7 @@ app.post("/labs", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         if (response.status !== 200)
             throw new Error("Oops, something unexpected happened.");
         const file = Math.random().toString(36).substring(7);
-        const filePath = path_1.default.join(__dirname, "public", "audio", `${file}.mp3`);
+        const filePath = path_1.default.join(process.cwd(), "public/audio", `${file}.mp3`);
         response.data.pipe(fs_1.default.createWriteStream(filePath));
         res.send(JSON.stringify({ file: `${file}.mp3` }));
     }
@@ -104,13 +104,13 @@ app.post("/labs", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 // ? Endpoint to serve the audio file when the client requests it
 app.get("/audio/:fileName", (req, res) => {
     const fileName = req.params.fileName;
-    const filePath = path_1.default.join(__dirname, "public", "audio", fileName); // Path to the "audio" folder
+    const filePath = path_1.default.join(process.cwd(), "public/audio", fileName); // Path to the "audio" folder
     res.sendFile(filePath);
 });
 // Schedule the cleanup task once per day
 // cron.schedule("0 0 * * *", async () => {
 node_cron_1.default.schedule("*/10 * * * *", () => __awaiter(void 0, void 0, void 0, function* () {
-    const maxAgeInMinutes = 30; // Maximum age for audio files (adjust as needed)
+    const maxAgeInMinutes = 5; // Maximum age for audio files (adjust as needed)
     // Trigger the asynchronous to delete old files.
     yield (0, cleanup_1.deleteOldAudioFiles)(cleanup_1.AUDIO_DIRECTORY, maxAgeInMinutes);
 }));

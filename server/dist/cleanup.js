@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteOldAudioFiles = exports.AUDIO_DIRECTORY = void 0;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
-exports.AUDIO_DIRECTORY = path_1.default.join(__dirname, "public", "audio");
+exports.AUDIO_DIRECTORY = path_1.default.join(process.cwd(), "public/audio");
 // * Deletes mp3 files older than 30 min (maxAgeInMinutes) in /dist/audio
 const deleteOldAudioFiles = (directory, maxAgeInMinutes) => __awaiter(void 0, void 0, void 0, function* () {
     const currentTime = Date.now();

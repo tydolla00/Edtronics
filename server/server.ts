@@ -23,7 +23,7 @@ const openai = new OpenAIApi(configuration);
 const app: Express = express();
 app.use(cors());
 app.use(express.json());
-app.use("./audio", express.static(path.join(__dirname, "audio")));
+app.use(process.cwd(), express.static(path.join(__dirname, "public/audio")));
 
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello Worldd");
@@ -67,7 +67,7 @@ app.post("/labs", async (req, res) => {
       throw new Error("Oops, something unexpected happened.");
 
     const file = Math.random().toString(36).substring(7);
-    const filePath = path.join(__dirname, "audio", `${file}.mp3`);
+    const filePath = path.join(process.cwd(), "public/audio", `${file}.mp3`);
 
     response.data.pipe(fs.createWriteStream(filePath));
 
@@ -81,14 +81,14 @@ app.post("/labs", async (req, res) => {
 // ? Endpoint to serve the audio file when the client requests it
 app.get("/audio/:fileName", (req, res) => {
   const fileName = req.params.fileName;
-  const filePath = path.join(__dirname, "audio", fileName); // Path to the "audio" folder
+  const filePath = path.join(process.cwd(), "public/audio", fileName); // Path to the "audio" folder
   res.sendFile(filePath);
 });
 
 // Schedule the cleanup task once per day
 // cron.schedule("0 0 * * *", async () => {
 cron.schedule("*/10 * * * *", async () => {
-  const maxAgeInMinutes = 30; // Maximum age for audio files (adjust as needed)
+  const maxAgeInMinutes = 5; // Maximum age for audio files (adjust as needed)
 
   // Trigger the asynchronous to delete old files.
   await deleteOldAudioFiles(AUDIO_DIRECTORY, maxAgeInMinutes);
