@@ -1,6 +1,6 @@
 import { useRef, useState, createContext, useEffect } from "react";
 import Typed from "typed.js";
-import Bae from "./assets/Bae🖤.jpg";
+import edbot from "./assets/edbot.jpeg";
 import { ChatProps } from "./utils/types";
 import Notification from "./components/notifications";
 import Command, { Chat } from "./components/chatbox";
@@ -38,7 +38,7 @@ function App() {
   ]);
   const [loading, setLoading] = useState(false);
   const [isTyping, setisTyping] = useState(false);
-  const [audio, setAudio] = useState<any>(null); // File name
+  const [audio, setAudio] = useState<any>(); // File name
 
   const bot = useRef(null);
 
@@ -68,7 +68,7 @@ function App() {
           <div className="flex justify-center">
             <img
               className="h-40 w-40 rounded-full object-cover"
-              src={Bae}
+              src={edbot}
               alt="Bot icon"
             />
           </div>
@@ -84,7 +84,8 @@ function App() {
           {!loading && audio && (
             <ReactAudioPlayer
               id="audioplayer"
-              src={`http://localhost:8000/audio/${audio}`}
+              // src={`https://edbot.onrender.com/audio/${audio}`}
+              src={audio}
               onCanPlayThrough={handleAudioLoaded}
               // onLoadedMetadata={handleAudioLoaded}
               preload="auto"

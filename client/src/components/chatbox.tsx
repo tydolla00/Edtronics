@@ -2,6 +2,7 @@ import axios from "axios";
 import { ChatContext } from "../App";
 import { ChatProps, Chats, CommandProps } from "../utils/types";
 import { useState, useRef, useContext } from "react";
+import { parse } from "flatted";
 
 export const Chat = ({ isAi, message }: ChatProps) => {
   return (
@@ -29,6 +30,7 @@ const generateUniqueId = (): string => {
 // ? Fetches response from ChatGPT. Returns generated text.
 const getBotMessage = async (prompt: Chats[]): Promise<string> => {
   let response = await axios.post(
+    // "https://edbot.onrender.com/botmessage",
     "http://localhost:8000/botmessage",
     { prompt },
     {
@@ -43,13 +45,23 @@ const getBotMessage = async (prompt: Chats[]): Promise<string> => {
 // ? Fetches response from ElevenLabs. Returns url to file name on server.
 const getBotSpeech = async (text: string) => {
   try {
-    const response = await axios.post("http://localhost:8000/labs", {
-      message: text,
-      voice: "21m00Tcm4TlvDq8ikWAM",
-    });
+    const response = await axios.post(
+      // "https://edbot.onrender.com/labs",
+      "http://localhost:8000/labs",
+      {
+        message: text,
+        voice: "21m00Tcm4TlvDq8ikWAM",
+      }
+    );
     if (!response.status) {
       throw new Error("Something went wrong with fetching the voice");
     }
+    // console.log(response);
+    // console.log(response.data.env.blob);
+    // return response.data.env.blob;
+    // const blob = new Blob(response.data, { type: "audio/mpeg" });
+    // return blob;
+
     const url = response.data.file;
     return url;
   } catch (error) {

@@ -12,6 +12,9 @@ interface ENV {
   PORT: number | undefined;
   MONGO_URI: string | undefined;
   API_KEY: string | undefined;
+  CLIENT_ID: string | undefined;
+  CLIENT_SECRET: string | undefined;
+  REFRESH_TOKEN: string | undefined;
 }
 
 interface Config {
@@ -19,6 +22,9 @@ interface Config {
   PORT: number;
   MONGO_URI: string;
   API_KEY: string;
+  CLIENT_ID: string;
+  CLIENT_SECRET: string;
+  REFRESH_TOKEN: string;
 }
 
 // Loading process.env as ENV interface
@@ -29,6 +35,9 @@ const getConfig = (): ENV => {
     PORT: process.env.PORT ? Number(process.env.PORT) : undefined,
     MONGO_URI: process.env.MONGO_URI,
     API_KEY: process.env.API_KEY,
+    CLIENT_ID: process.env.CLIENT_ID,
+    CLIENT_SECRET: process.env.CLIENT_SECRET,
+    REFRESH_TOKEN: process.env.REFRESH_TOKEN,
   };
 };
 
