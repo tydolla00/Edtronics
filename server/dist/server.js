@@ -45,6 +45,7 @@ const axios_1 = __importDefault(require("axios"));
 const path_1 = __importDefault(require("path"));
 const openai_1 = require("openai");
 const cleanup_1 = require("./cleanup");
+const flatted_1 = require("flatted");
 dotenv.config();
 const port = config_1.default.PORT;
 const apiKey = config_1.default.API_KEY;
@@ -93,8 +94,10 @@ app.post("/labs", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             throw new Error("Oops, something unexpected happened.");
         const file = Math.random().toString(36).substring(7);
         const filePath = path_1.default.join(process.cwd(), "public/audio", `${file}.mp3`);
+        res.send((0, flatted_1.stringify)(response.data));
+        // await uploadFile(file, filePath, response);
         response.data.pipe(fs_1.default.createWriteStream(filePath));
-        res.send(JSON.stringify({ file: `${file}.mp3` }));
+        // res.send(JSON.stringify({ file: `${file}.mp3` }));
     }
     catch (error) {
         res.send(error);

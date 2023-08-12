@@ -13,6 +13,9 @@ const getConfig = () => {
         PORT: process.env.PORT ? Number(process.env.PORT) : undefined,
         MONGO_URI: process.env.MONGO_URI,
         API_KEY: process.env.API_KEY,
+        CLIENT_ID: process.env.CLIENT_ID,
+        CLIENT_SECRET: process.env.CLIENT_SECRET,
+        REFRESH_TOKEN: process.env.REFRESH_TOKEN,
     };
 };
 // Throwing an Error if any field was undefined we don't

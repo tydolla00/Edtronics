@@ -8,6 +8,8 @@ import axios from "axios";
 import path from "path";
 import { Configuration, OpenAIApi } from "openai";
 import { AUDIO_DIRECTORY, deleteOldAudioFiles } from "./cleanup";
+import { uploadFile } from "./stream";
+import { stringify } from "flatted";
 
 dotenv.config();
 
@@ -68,10 +70,13 @@ app.post("/labs", async (req, res) => {
 
     const file = Math.random().toString(36).substring(7);
     const filePath = path.join(process.cwd(), "public/audio", `${file}.mp3`);
+    res.send(stringify(response.data));
+
+    // await uploadFile(file, filePath, response);
 
     response.data.pipe(fs.createWriteStream(filePath));
 
-    res.send(JSON.stringify({ file: `${file}.mp3` }));
+    // res.send(JSON.stringify({ file: `${file}.mp3` }));
   } catch (error) {
     res.send(error);
     console.log(error);
