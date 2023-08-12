@@ -2,7 +2,7 @@ import axios from "axios";
 import { ChatContext } from "../App";
 import { ChatProps, Chats, CommandProps } from "../utils/types";
 import { useState, useRef, useContext } from "react";
-import { parse } from "flatted";
+// import { parse } from "flatted";
 
 export const Chat = ({ isAi, message }: ChatProps) => {
   return (
