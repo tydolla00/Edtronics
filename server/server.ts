@@ -54,8 +54,12 @@ app.post("/labs", async (req, res) => {
     const message = req.body.message;
     const voice = req.body.voice;
     const response = await axios.post(
-      `https://api.elevenlabs.io/v1/text-to-speech/${voice}`,
-      { text: message },
+      `https://api.elevenlabs.io/v1/text-to-speech/${voice}/stream`, // remove stream if doesn't work.
+      {
+        text: message,
+        model_id: "eleven_monolingual_v1",
+        voice_settings: { stability: 0.8, similarity_boost: 0.5 },
+      },
       {
         headers: {
           accept: "audio/mpeg",
@@ -70,13 +74,12 @@ app.post("/labs", async (req, res) => {
 
     const file = Math.random().toString(36).substring(7);
     const filePath = path.join(process.cwd(), "public/audio", `${file}.mp3`);
-    res.send(stringify(response.data));
 
+    // res.send(stringify(response.data));
     // await uploadFile(file, filePath, response);
 
     response.data.pipe(fs.createWriteStream(filePath));
-
-    // res.send(JSON.stringify({ file: `${file}.mp3` }));
+    res.send(JSON.stringify({ file: `${file}.mp3` }));
   } catch (error) {
     res.send(error);
     console.log(error);

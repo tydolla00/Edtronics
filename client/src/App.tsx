@@ -85,7 +85,7 @@ function App() {
             <ReactAudioPlayer
               id="audioplayer"
               // src={`https://edbot.onrender.com/audio/${audio}`}
-              src={audio}
+              src={`http://localhost:8000/audio/${audio}`}
               onCanPlayThrough={handleAudioLoaded}
               // onLoadedMetadata={handleAudioLoaded}
               preload="auto"
