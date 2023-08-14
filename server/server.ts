@@ -30,6 +30,9 @@ app.use(process.cwd(), express.static(path.join(__dirname, "public/audio")));
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello Worldd");
 });
+app.get("/about", (req: Request, res: Response) => {
+  res.send("About something");
+});
 
 // ? Calls ChatGPT API with instructions and appeneds new prompt. Then returns bot's response.
 app.post("/botmessage", async (req, res) => {
