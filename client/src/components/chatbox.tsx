@@ -50,7 +50,7 @@ const getBotSpeech = async (text: string) => {
       "http://localhost:8000/labs",
       {
         message: text,
-        voice: "21m00Tcm4TlvDq8ikWAM",
+        voice: "Oe44vogIrNx0ABbESGUL",
       }
     );
     if (!response.status) {
